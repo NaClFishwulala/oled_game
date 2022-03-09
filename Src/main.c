@@ -116,10 +116,8 @@ int main(void)
 		SnakeMove();
 		GameDraw();
 		FoodEat();
-//		HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_13);
+		SnakeControl();
 		HAL_Delay(100);
-//		printf("\r\n %d \r\n",dirction);
-		
   }
   /* USER CODE END 3 */
 }

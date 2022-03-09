@@ -37,7 +37,7 @@ void GameInit()
 	//初始化蛇
 	mysnake.size = SnakeNode;
 	mysnake.speed = SnakeSpeed;
-	mysnake.dir = direction;
+	mysnake.dir = right;
 	mysnake.status = TRUE;
 	
 	for (int i = 0; i < mysnake.size; i++)
@@ -111,38 +111,67 @@ void SnakeMove()
 	if (mysnake.status)
 	{
 		//先清除mysnake.coord[mysnake.size - 1].x&y 所对应的oled_cache缓存
-		PointToCache(mysnake.coord[mysnake.size - 1].x, mysnake.coord[mysnake.size - 1].y,CLEAR,SnakeNodeSize);
+		PointToCache(mysnake.coord[mysnake.size - 1].x, mysnake.coord[mysnake.size - 1].y,CLEAR,SnakeNodeSize);		
 		for (int i = mysnake.size - 1; i > 0; i--)
 		{
 			mysnake.coord[i].x = mysnake.coord[i - 1].x;
 			mysnake.coord[i].y = mysnake.coord[i - 1].y;
 		}
-		mysnake.dir = direction;
 		switch (mysnake.dir)
 		{
 		case right:
-			mysnake.coord[0].x += SnakeSpeed;
+			mysnake.coord[0].x += SnakeNodeSize;
 			if (mysnake.coord[0].x >= Max_Column)
 				mysnake.coord[0].x = 0;
 			break;
 		case left:
-			mysnake.coord[0].x -= SnakeSpeed;
+			mysnake.coord[0].x -= SnakeNodeSize;
 			if (mysnake.coord[0].x <= 0)
 				mysnake.coord[0].x = Max_Column;
 			break;
 		case up:
-			mysnake.coord[0].y -= SnakeSpeed;
+			mysnake.coord[0].y -= SnakeNodeSize;
 			if (mysnake.coord[0].y <= 0)
 				mysnake.coord[0].y = Max_Row;
 			break;
 		case down:
-			mysnake.coord[0].y += SnakeSpeed;
+			mysnake.coord[0].y += SnakeNodeSize;
 			if (mysnake.coord[0].y >= Max_Row)
 				mysnake.coord[0].y = 0;
 			break;
 		default:
 			break;
 		}
+	}
+}
+
+/**
+* @brief  蛇方向控制
+* @param  None
+* @retval 根据joystick的方向来控制蛇的方向
+*/
+void SnakeControl(void)
+{
+	switch(direction)
+	{
+		case up:
+			if(mysnake.dir != down)
+				mysnake.dir = up;
+			break;
+		case down:
+			if(mysnake.dir != up)
+				mysnake.dir = down;
+			break;
+		case left:
+			if(mysnake.dir != right)
+				mysnake.dir = left;
+			break;
+		case right:
+			if(mysnake.dir != left)
+				mysnake.dir = right;
+			break;
+		default:
+			break;
 	}
 }
 
@@ -177,3 +206,5 @@ void FoodEat()
 	if (!myfood.flag)
 		FoodCreat();
 }
+
+

@@ -5,7 +5,7 @@
 
 
 #define SnakeNode 4
-#define SnakeSpeed 2
+#define SnakeSpeed 1
 #define SnakeNodeSize 2
 
 #define FoodSize 2
@@ -22,6 +22,7 @@ void GameDraw(void);
 void DrawSnakeMap(void);
 void DrawMySnake(void);
 void SnakeMove(void);
+void SnakeControl(void);
 void FoodCreat(void);
 void FoodEat(void);
 void PointToCache(unsigned char x_pos,unsigned char y_pos,unsigned char flag,unsigned char size);
