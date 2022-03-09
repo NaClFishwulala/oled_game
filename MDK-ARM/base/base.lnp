@@ -4,6 +4,7 @@
 "base\gpio.o"
 "base\adc.o"
 "base\dma.o"
+"base\tim.o"
 "base\usart.o"
 "base\stm32f1xx_it.o"
 "base\stm32f1xx_hal_msp.o"

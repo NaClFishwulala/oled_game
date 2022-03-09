@@ -27,9 +27,12 @@ base\main.o: ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_adc_ex.h
 base\main.o: ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_flash.h
 base\main.o: ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_flash_ex.h
 base\main.o: ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_pwr.h
+base\main.o: ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_tim.h
+base\main.o: ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_tim_ex.h
 base\main.o: ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_uart.h
 base\main.o: ../Inc/adc.h
 base\main.o: ../Inc/dma.h
+base\main.o: ../Inc/tim.h
 base\main.o: ../Inc/usart.h
 base\main.o: ../Inc/gpio.h
 base\main.o: D:\MDK5\ARM\ARMCC\Bin\..\include\stdio.h

@@ -31,7 +31,10 @@ base\snake_1.o: ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_adc_ex.h
 base\snake_1.o: ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_flash.h
 base\snake_1.o: ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_flash_ex.h
 base\snake_1.o: ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_pwr.h
+base\snake_1.o: ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_tim.h
+base\snake_1.o: ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_tim_ex.h
 base\snake_1.o: ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_uart.h
 base\snake_1.o: ..\HEADWARE\JOYSTICK\joystick.h
 base\snake_1.o: D:\MDK5\ARM\ARMCC\Bin\..\include\stdio.h
 base\snake_1.o: ../Inc/adc.h
+base\snake_1.o: ../Inc/tim.h

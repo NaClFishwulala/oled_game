@@ -20,6 +20,7 @@
 #include "main.h"
 #include "adc.h"
 #include "dma.h"
+#include "tim.h"
 #include "usart.h"
 #include "gpio.h"
 
@@ -97,13 +98,17 @@ int main(void)
   MX_USART1_UART_Init();
   MX_DMA_Init();
   MX_ADC1_Init();
+  MX_TIM3_Init();
   /* USER CODE BEGIN 2 */
 	HAL_ADCEx_Calibration_Start(&hadc1);
 	HAL_ADC_Start_DMA(&hadc1, (unsigned int*)&adc_buff, 50);
 	
+	HAL_TIM_Base_Start_IT(&htim3);
 	OLED_Init();
 	GameInit();
 	GameDraw();
+	
+	
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -113,11 +118,7 @@ int main(void)
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
-		SnakeMove();
-		GameDraw();
-		FoodEat();
-		SnakeControl();
-		HAL_Delay(100);
+		SnakeGame();
   }
   /* USER CODE END 3 */
 }

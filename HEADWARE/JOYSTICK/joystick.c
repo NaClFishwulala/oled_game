@@ -40,32 +40,3 @@ void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* hadc)
 	}
 }
 
-/**
-* @brief  
-* @param  
-* @retval 
-*/
-void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
-{
-	if(GPIO_Pin == SW_Pin)
-	{
-		HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_13);
-		printf("\r\n按键翻转\r\n");
-	}
-		
-}
-
-/**
-* @brief  开启ADC采集
-* @param  None
-* @retval 触发ADC回调函数
-*/
-//void GetJoyStickStatus(void)
-//{
-
-//		
-//		#if 0
-//		printf("\n\r x:%d ADC1_Volt:%d.%d%d \n\r",x,x/100,(x/100)%10,x%10);
-//		printf("\n\r y:%d ADC2_Volt:%d.%d%d \n\r",y,y/100,(y/100)%10,y%10);
-//		#endif
-//}

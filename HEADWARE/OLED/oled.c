@@ -351,14 +351,12 @@ void PointToCache(unsigned char x_pos,unsigned char y_pos,unsigned char flag,uns
 		unsigned char data = 0x01;
 		for(int m=0;m<dot;m++)
 			data <<= 1;
-		if(flag == WRITE)
+
+		for(int j=0;j<size;j++)
 		{
-			for(int j=0;j<size;j++)
+			if(x_pos+j <Column && flag == WRITE  )
 				oled_cache[page][x_pos+j] |= data;
-		}
-		else if(flag == CLEAR)
-		{
-			for(int j=0;j<size;j++)
+			else if(x_pos+j <Column && flag == CLEAR )
 				oled_cache[page][x_pos+j] &= (~data);
 		}
 	}

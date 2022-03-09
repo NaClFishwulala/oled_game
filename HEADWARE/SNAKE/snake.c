@@ -1,9 +1,11 @@
 #include "snake.h"
 #include "stdlib.h"
+#include "tim.h"
 
+int time = 0;
 typedef struct tagPOINT{
-    char  x;//0~127
-    char  y;//0~63
+    int  x;//0~127
+    int  y;//0~63
 } POINT;//需要与oled_cache进行映射
 
 struct MySnake
@@ -12,7 +14,7 @@ struct MySnake
 	int dir;
 	int speed;
 	int status;
-	POINT coord[5000];
+	POINT coord[2048];
 }mysnake;
 
 struct Food
@@ -21,6 +23,17 @@ struct Food
 	int y;
 	int flag;
 }myfood;
+
+void SnakeGame(void)
+{
+	DrawSnakeMap();
+	SnakeMove();
+	GameDraw();
+	FoodEat();
+	SnakeControl();
+	SnakeControlSpeed();
+}
+
 
 /**
 * @brief  游戏开始
@@ -33,7 +46,7 @@ void GameInit()
 	//清空地图
 	OLED_CacheClear();
 	//画围墙
-//	DrawSnakeMap();
+	DrawSnakeMap();
 	//初始化蛇
 	mysnake.size = SnakeNode;
 	mysnake.speed = SnakeSpeed;
@@ -42,8 +55,8 @@ void GameInit()
 	
 	for (int i = 0; i < mysnake.size; i++)
 	{
-		mysnake.coord[i].x = (mysnake.size-i)*SnakeNodeSize+10;
-		mysnake.coord[i].y = 6;
+		mysnake.coord[i].x = (mysnake.size-i)*SnakeNodeSize+ WALL_Left + WALLSize;
+		mysnake.coord[i].y = 2;
 	}
 	
 	//初始化食物
@@ -76,9 +89,9 @@ void DrawSnakeMap()
 {
 	for(int i=0;i<ROW;i++)
 	{
-		for(int j=0;j<Column;j++)
+		for(int j=WALL_Left;j<WALL_Right;j++)
 		{
-			if(j==0 || j==1 || j== Column-2 || j == Column-1)
+			if(j==WALL_Left || j==WALL_Left+1 || j== WALL_Right-2 || j == WALL_Right-1)
 				oled_cache[i][j] = 0xff;
 			else if(i == 0)
 				oled_cache[i][j] = 0x03;
@@ -121,23 +134,35 @@ void SnakeMove()
 		{
 		case right:
 			mysnake.coord[0].x += SnakeNodeSize;
-			if (mysnake.coord[0].x >= Max_Column)
-				mysnake.coord[0].x = 0;
+			if (mysnake.coord[0].x >= WALL_Right - WALLSize)
+			{
+				mysnake.status = FALSE;
+				mysnake.coord[0].x = WALL_Left + WALLSize;
+			}
 			break;
 		case left:
 			mysnake.coord[0].x -= SnakeNodeSize;
-			if (mysnake.coord[0].x <= 0)
-				mysnake.coord[0].x = Max_Column;
+			if (mysnake.coord[0].x < WALL_Left + WALLSize)
+			{
+				mysnake.status = FALSE;
+				mysnake.coord[0].x = WALL_Right - WALLSize;
+			}
 			break;
 		case up:
 			mysnake.coord[0].y -= SnakeNodeSize;
-			if (mysnake.coord[0].y <= 0)
-				mysnake.coord[0].y = Max_Row;
+			if (mysnake.coord[0].y < WALLSize)
+			{
+				mysnake.status = FALSE;
+				mysnake.coord[0].y = WALLHeight-WALLSize;
+			}
 			break;
 		case down:
 			mysnake.coord[0].y += SnakeNodeSize;
-			if (mysnake.coord[0].y >= Max_Row)
-				mysnake.coord[0].y = 0;
+			if (mysnake.coord[0].y >= WALLHeight- WALLSize)
+			{
+				mysnake.status = FALSE;
+				mysnake.coord[0].y = WALLSize;
+			}
 			break;
 		default:
 			break;
@@ -182,9 +207,24 @@ void SnakeControl(void)
 */
 void FoodCreat()
 {
-	myfood.x = rand() % Max_Column;
-	myfood.y = rand() % Max_Row;
-	myfood.flag = TRUE;
+	srand(time);
+	while(!myfood.flag)
+	{
+		int flag = 1;
+		myfood.x = WALL_Left + WALLSize + rand() % (WALL_Right-WALL_Left - WALLSize * 2);
+		myfood.y = (WALLSize + rand()) % (WALLHeight - WALLSize * 2);
+		//生成的食物不能在蛇身上
+		//遍历蛇的每个节点，如果有和食物相等的部分要重新生成，如果全部不等，零flag为true
+		for(int i=0;i<mysnake.size;i++)
+		{
+			if(mysnake.coord[i].x < myfood.x && myfood.x < mysnake.coord[i].x + SnakeNodeSize
+			&& mysnake.coord[i].y < myfood.y && myfood.y < mysnake.coord[i].y + SnakeNodeSize)
+				flag = 0;
+		}
+		if(flag == 1)
+			myfood.flag = TRUE;
+	}
+
 }
 
 /**
@@ -208,3 +248,41 @@ void FoodEat()
 }
 
 
+
+
+void SnakeControlSpeed(void)
+{
+	if(mysnake.size <= SnakeNode + 1)
+		mysnake.speed = low;
+	else if(mysnake.size > SnakeNode + 1 && mysnake.size <= SnakeNode + 5)
+		mysnake.speed = mid;
+	else if(mysnake.size > SnakeNode + 5)
+		mysnake.speed = fast;
+	switch(mysnake.speed)
+	{
+		case low:
+			HAL_Delay(100);
+			break;
+		case mid:
+			HAL_Delay(50);
+			break;
+		case fast:
+			HAL_Delay(25);
+			break;
+		default:
+			break;
+	}
+}
+
+/**
+* @brief  定时器中断函数
+* @param  None
+* @retval 
+*/
+void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
+{
+	if (htim->Instance == htim3.Instance)
+	{
+		time = (time++) % 10000;
+	}
+}
