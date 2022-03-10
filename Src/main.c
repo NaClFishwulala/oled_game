@@ -107,8 +107,6 @@ int main(void)
 	OLED_Init();
 	GameInit();
 	GameDraw();
-	
-	
   /* USER CODE END 2 */
 
   /* Infinite loop */

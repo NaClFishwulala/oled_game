@@ -3,6 +3,7 @@
 #include "tim.h"
 
 int time = 0;
+int GameMode = snake_game;
 typedef struct tagPOINT{
     int  x;//0~127
     int  y;//0~63
@@ -26,12 +27,24 @@ struct Food
 
 void SnakeGame(void)
 {
-	DrawSnakeMap();
-	SnakeMove();
-	GameDraw();
-	FoodEat();
-	SnakeControl();
-	SnakeControlSpeed();
+	if(mysnake.status == alive)
+	{
+		DrawSnakeMap();
+		SnakeMove();
+		GameDraw();
+		FoodEat();
+		SnakeControl();
+		SnakeControlSpeed();
+	}
+	else if(mysnake.status == death)
+	{
+		GameMode = over;
+		OLED_CacheClear();
+		OLED_Clear();
+		HAL_Delay(500);
+		ShowScore();
+		HAL_Delay(8000);
+	}
 }
 
 
@@ -51,7 +64,7 @@ void GameInit()
 	mysnake.size = SnakeNode;
 	mysnake.speed = SnakeSpeed;
 	mysnake.dir = right;
-	mysnake.status = TRUE;
+	mysnake.status = alive;
 	
 	for (int i = 0; i < mysnake.size; i++)
 	{
@@ -121,7 +134,7 @@ void DrawMySnake()
 */
 void SnakeMove()
 {
-	if (mysnake.status)
+	if (mysnake.status == alive)
 	{
 		//先清除mysnake.coord[mysnake.size - 1].x&y 所对应的oled_cache缓存
 		PointToCache(mysnake.coord[mysnake.size - 1].x, mysnake.coord[mysnake.size - 1].y,CLEAR,SnakeNodeSize);		
@@ -134,34 +147,56 @@ void SnakeMove()
 		{
 		case right:
 			mysnake.coord[0].x += SnakeNodeSize;
+			//撞墙死亡
 			if (mysnake.coord[0].x >= WALL_Right - WALLSize)
 			{
-				mysnake.status = FALSE;
+				mysnake.status = death;
 				mysnake.coord[0].x = WALL_Left + WALLSize;
+			}
+			//撞身子死亡
+			for(int i=1;i < mysnake.size;i++)
+			{
+				if(mysnake.coord[0].x == mysnake.coord[i].x - SnakeNodeSize && mysnake.coord[0].y == mysnake.coord[i].y)
+					mysnake.status = death;
 			}
 			break;
 		case left:
 			mysnake.coord[0].x -= SnakeNodeSize;
 			if (mysnake.coord[0].x < WALL_Left + WALLSize)
 			{
-				mysnake.status = FALSE;
+				mysnake.status = death;
 				mysnake.coord[0].x = WALL_Right - WALLSize;
+			}
+			for(int i=1;i < mysnake.size;i++)
+			{
+				if(mysnake.coord[0].x == mysnake.coord[i].x && mysnake.coord[0].y == mysnake.coord[i].y)
+					mysnake.status = death;
 			}
 			break;
 		case up:
 			mysnake.coord[0].y -= SnakeNodeSize;
 			if (mysnake.coord[0].y < WALLSize)
 			{
-				mysnake.status = FALSE;
+				mysnake.status = death;
 				mysnake.coord[0].y = WALLHeight-WALLSize;
+			}
+			for(int i=1;i < mysnake.size;i++)
+			{
+				if(mysnake.coord[0].x == mysnake.coord[i].x && mysnake.coord[0].y == mysnake.coord[i].y)
+					mysnake.status = death;
 			}
 			break;
 		case down:
 			mysnake.coord[0].y += SnakeNodeSize;
 			if (mysnake.coord[0].y >= WALLHeight- WALLSize)
 			{
-				mysnake.status = FALSE;
+				mysnake.status = death;
 				mysnake.coord[0].y = WALLSize;
+			}
+			for(int i=1;i < mysnake.size;i++)
+			{
+				if(mysnake.coord[0].x == mysnake.coord[i].x && mysnake.coord[0].y == mysnake.coord[i].y - SnakeNodeSize)
+					mysnake.status = death;
 			}
 			break;
 		default:
@@ -211,14 +246,14 @@ void FoodCreat()
 	while(!myfood.flag)
 	{
 		int flag = 1;
-		myfood.x = WALL_Left + WALLSize + rand() % (WALL_Right-WALL_Left - WALLSize * 2);
+		myfood.x = WALL_Left + WALLSize + rand() % (WALL_Right-WALL_Left - WALLSize * 3);
 		myfood.y = (WALLSize + rand()) % (WALLHeight - WALLSize * 2);
 		//生成的食物不能在蛇身上
 		//遍历蛇的每个节点，如果有和食物相等的部分要重新生成，如果全部不等，零flag为true
 		for(int i=0;i<mysnake.size;i++)
 		{
-			if(mysnake.coord[i].x < myfood.x && myfood.x < mysnake.coord[i].x + SnakeNodeSize
-			&& mysnake.coord[i].y < myfood.y && myfood.y < mysnake.coord[i].y + SnakeNodeSize)
+			if(mysnake.coord[i].x - SnakeNodeSize < myfood.x && myfood.x < mysnake.coord[i].x + SnakeNodeSize
+			&& mysnake.coord[i].y - SnakeNodeSize < myfood.y && myfood.y < mysnake.coord[i].y + SnakeNodeSize)
 				flag = 0;
 		}
 		if(flag == 1)
@@ -252,26 +287,36 @@ void FoodEat()
 
 void SnakeControlSpeed(void)
 {
-	if(mysnake.size <= SnakeNode + 1)
+	if(mysnake.size <= SnakeNode + 5)
 		mysnake.speed = low;
-	else if(mysnake.size > SnakeNode + 1 && mysnake.size <= SnakeNode + 5)
+	else if(mysnake.size > SnakeNode + 5 && mysnake.size <= SnakeNode + 10)
 		mysnake.speed = mid;
-	else if(mysnake.size > SnakeNode + 5)
+	else if(mysnake.size > SnakeNode + 10 && mysnake.size <= SnakeNode + 20)
 		mysnake.speed = fast;
+	else if(mysnake.size > SnakeNode + 20)
+		mysnake.speed = flash;
 	switch(mysnake.speed)
 	{
 		case low:
-			HAL_Delay(100);
+			HAL_Delay(150);
 			break;
 		case mid:
-			HAL_Delay(50);
+			HAL_Delay(100);
 			break;
 		case fast:
-			HAL_Delay(25);
+			HAL_Delay(50);
+			break;
+		case flash:
+			HAL_Delay(20);
 			break;
 		default:
 			break;
 	}
+}
+
+void ShowScore(void)
+{
+	OLED_ShowNum(20,2,mysnake.size,2,16);
 }
 
 /**

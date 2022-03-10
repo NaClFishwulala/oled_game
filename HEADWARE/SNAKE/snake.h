@@ -4,8 +4,8 @@
 #include "joystick.h"
 
 
-#define SnakeNode 4
-#define SnakeSpeed 1
+#define SnakeNode 3
+#define SnakeSpeed low
 #define SnakeNodeSize 4
 
 #define WALLSize 2
@@ -20,7 +20,17 @@
 
 enum SPEED
 {
-		low,mid,fast
+		low,mid,fast,flash
+};
+
+enum STATE
+{
+		alive,death
+};
+
+enum GAME
+{
+		snake_game,over
 };
 
 extern unsigned char oled_cache[8][128];
@@ -37,5 +47,6 @@ void SnakeControl(void);
 void SnakeControlSpeed(void);
 void FoodCreat(void);
 void FoodEat(void);
+void ShowScore(void);
 void PointToCache(unsigned char x_pos,unsigned char y_pos,unsigned char flag,unsigned char size);
 #endif 
